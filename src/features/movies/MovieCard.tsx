@@ -1,4 +1,10 @@
-import { IconButton, makeStyles, Tooltip, Typography } from "@material-ui/core";
+import {
+  IconButton,
+  Link,
+  makeStyles,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import { Info } from "@material-ui/icons";
 import Rating from "@material-ui/lab/Rating";
 import { EntityId } from "@reduxjs/toolkit";
@@ -74,6 +80,7 @@ const useStyles = makeStyles({
   title: {
     fontSize: "2.2vh",
     color: "white",
+    textDecoration: "underline",
   },
   overview: {
     fontSize: "1.5vw",
@@ -100,7 +107,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
     dispatch(moviesActions.setFavorite({ id: movieId, flag: !!newValue }));
   };
 
-  const { image, title, overview, rating, year } = movieData;
+  const { id, image, title, overview, rating, year } = movieData;
 
   return (
     <div className={`${classes.root} ${favorite ? classes.favorite : ""}`}>
@@ -134,9 +141,15 @@ const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
           </IconButton>
         </Tooltip>
       </div>
-      <Typography className={classes.title} variant="caption">
-        {title}
-      </Typography>
+      <Link
+        href={`https://www.themoviedb.org/movie/${id}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        <Typography className={classes.title} variant="caption">
+          {title}
+        </Typography>
+      </Link>
     </div>
   );
 };
