@@ -1,7 +1,6 @@
 import { Movie } from "./Movie";
 
-const API_KEY =
-  process.env.REACT_APP_API_KEY || "6bb3231322d21c13fa04d396c527b91b";
+const API_KEY = process.env.REACT_APP_API_KEY;
 
 type MoviesResponseItem = {
   id: string;

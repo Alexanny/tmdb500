@@ -118,7 +118,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
         />
         <Tooltip
           title={
-            <div>
+            <>
               <Typography variant="h6">{title}</Typography>
               <Typography variant="caption" className="year">
                 Year: {year}
@@ -126,7 +126,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
               <Typography variant="body2" className="description">
                 {overview}
               </Typography>
-            </div>
+            </>
           }
         >
           <IconButton className={classes.info}>
