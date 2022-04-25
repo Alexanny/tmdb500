@@ -1,4 +1,3 @@
-import { CircularProgress } from "@material-ui/core";
 import {
   Pagination,
   PaginationItem,
@@ -9,7 +8,7 @@ import { ChangeEvent, FunctionComponent } from "react";
 
 const useStyles = makeStyles({
   wrapper: {
-    padding: "10px 0",
+    padding: "5vh 0",
   },
   pagination: {
     display: "block",
@@ -18,6 +17,9 @@ const useStyles = makeStyles({
     borderRadius: 4,
     backgroundColor: "rgb(255 255 255 / 20%)",
     padding: "4px 0",
+    "& .MuiPaginationItem-ellipsis": {
+      color: "white",
+    },
   },
   pageItem: {
     color: "white",
@@ -31,6 +33,7 @@ const useStyles = makeStyles({
 
 type CustomPaginationProps = {
   onChange: (event: ChangeEvent<unknown>, page: number) => void;
+  count?: number;
   defaultPage: number;
   page: number;
   loading: boolean;
@@ -38,6 +41,7 @@ type CustomPaginationProps = {
 };
 
 const CustomPagination: FunctionComponent<CustomPaginationProps> = ({
+  count,
   loading,
   requestedPage,
   ...otherProps
@@ -52,12 +56,11 @@ const CustomPagination: FunctionComponent<CustomPaginationProps> = ({
 
   return (
     <div className={classes.wrapper}>
-      {loading ? <CircularProgress size={20} /> : <div />}
       <Pagination
         className={classes.pagination}
         siblingCount={2}
         boundaryCount={2}
-        count={25}
+        count={count}
         shape="round"
         renderItem={renderItem}
         {...otherProps}

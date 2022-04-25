@@ -1,4 +1,4 @@
-import { Grid, Snackbar } from "@material-ui/core";
+import { Grid, LinearProgress, makeStyles, Snackbar } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import { ChangeEvent, FunctionComponent, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
@@ -11,7 +11,26 @@ import {
   requestMoviesPage,
 } from "./moviesSlice";
 
+const useStyles = makeStyles({
+  progress: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    "& .MuiLinearProgress-colorPrimary": {
+      backgroundColor: "white",
+    },
+    "& .MuiLinearProgress-barColorPrimary": {
+      backgroundColor: "#717171",
+    },
+  },
+  root: {
+    minHeight: "100%",
+  },
+});
+
 const MoviesList: FunctionComponent = () => {
+  const classes = useStyles();
   const dispatch = useAppDispatch();
   const currentPage = useAppSelector(movieSelectors.selectCurrentPageIndex);
   const movieIds = useAppSelector(movieSelectors.selectMovieIds);
@@ -65,8 +84,9 @@ const MoviesList: FunctionComponent = () => {
 
   const isLoading = requestedPageStatus === MoviesLoadingStatus.LOADING;
 
-  const Pagination = (
+  const Pagination = () => (
     <CustomPagination
+      count={25}
       onChange={handlePaginationChange}
       page={currentPage}
       requestedPage={requestedPage}
@@ -77,7 +97,22 @@ const MoviesList: FunctionComponent = () => {
 
   return (
     <>
-      {Pagination}
+      {requestedPageStatus === MoviesLoadingStatus.LOADING && (
+        <LinearProgress className={classes.progress} />
+      )}
+      {currentPageStatus === MoviesLoadingStatus.SUCCEEDED && (
+        <>
+          <Pagination />
+          <Grid container spacing={2}>
+            {movieIds.map((id) => (
+              <Grid key={id} item xs={12} sm={6} md={4} lg={3}>
+                <MovieCard movieId={id} />
+              </Grid>
+            ))}
+          </Grid>
+          <Pagination />
+        </>
+      )}
       {
         <Snackbar
           open={showErrorAlert}
@@ -89,16 +124,6 @@ const MoviesList: FunctionComponent = () => {
           </Alert>
         </Snackbar>
       }
-      {currentPageStatus === MoviesLoadingStatus.SUCCEEDED && (
-        <Grid container spacing={2}>
-          {movieIds.map((id) => (
-            <Grid key={id} item xs={12} sm={6} md={4} lg={3}>
-              <MovieCard movieId={id} />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-      {Pagination}
     </>
   );
 };

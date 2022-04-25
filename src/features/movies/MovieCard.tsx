@@ -1,4 +1,5 @@
 import {
+  Divider,
   IconButton,
   Link,
   makeStyles,
@@ -77,10 +78,16 @@ const useStyles = makeStyles({
     display: "grid",
     gridTemplateColumns: "1fr 30px",
   },
+  titleContainer: {
+    height: "10vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+  },
   title: {
     fontSize: "2.2vh",
     color: "white",
-    textDecoration: "underline",
   },
   overview: {
     fontSize: "1.5vw",
@@ -126,11 +133,13 @@ const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
         <Tooltip
           title={
             <>
-              <Typography variant="h6">{title}</Typography>
-              <Typography variant="caption" className="year">
+              <Typography variant="h5">{title}</Typography>
+              <Divider />
+              <Typography variant="subtitle1" className="year">
                 Year: {year}
               </Typography>
-              <Typography variant="body2" className="description">
+              <Divider />
+              <Typography variant="subtitle1" className="description">
                 {overview}
               </Typography>
             </>
@@ -141,15 +150,17 @@ const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
           </IconButton>
         </Tooltip>
       </div>
-      <Link
-        href={`https://www.themoviedb.org/movie/${id}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        <Typography className={classes.title} variant="caption">
-          {title}
-        </Typography>
-      </Link>
+      <div className={classes.titleContainer}>
+        <Link
+          href={`https://www.themoviedb.org/movie/${id}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Typography className={classes.title} variant="caption">
+            {title}
+          </Typography>
+        </Link>
+      </div>
     </div>
   );
 };

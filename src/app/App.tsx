@@ -6,6 +6,9 @@ import MoviesList from "../features/movies/MoviesList";
 import "../index.css";
 
 const useStyles = makeStyles({
+  root: {
+    minHeight: "100%",
+  },
   title: {
     borderRadius: "0 0 4px 4px",
     color: "black",
@@ -16,7 +19,7 @@ const useStyles = makeStyles({
 const App: FunctionComponent = () => {
   const classes = useStyles();
   return (
-    <Container>
+    <Container className={classes.root}>
       <Typography
         className={classes.title}
         variant="h3"
