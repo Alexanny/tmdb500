@@ -1,10 +1,35 @@
+import { useMediaQuery } from "@material-ui/core";
+import { useTheme } from "@material-ui/core/styles";
 import {
   Pagination,
   PaginationItem,
-  PaginationRenderItemParams,
+  PaginationRenderItemParams
 } from "@material-ui/lab";
 import { makeStyles } from "@material-ui/styles";
 import { ChangeEvent, FunctionComponent } from "react";
+
+const sizeBasedProps = {
+  xl: {
+    boundaryCount: 1,
+    siblingCount: 2,
+  },
+  lg: {
+    boundaryCount: 4,
+    siblingCount: 4,
+  },
+  md: {
+    boundaryCount: 2,
+    siblingCount: 2,
+  },
+  sm: {
+    boundaryCount: 1,
+    siblingCount: 2,
+  },
+  xs: {
+    boundaryCount: 1,
+    siblingCount: 0,
+  },
+};
 
 const useStyles = makeStyles({
   wrapper: {
@@ -47,6 +72,20 @@ const CustomPagination: FunctionComponent<CustomPaginationProps> = ({
   ...otherProps
 }) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const xl = useMediaQuery(theme.breakpoints.up("xl"));
+  const lg = useMediaQuery(theme.breakpoints.up("lg"));
+  const md = useMediaQuery(theme.breakpoints.up("md"));
+  const sm = useMediaQuery(theme.breakpoints.up("sm"));
+  const xs = useMediaQuery(theme.breakpoints.up("xs"));
+
+  const sizeBased = () => {
+    if (xl) return sizeBasedProps["xl"];
+    if (lg) return sizeBasedProps["lg"];
+    if (md) return sizeBasedProps["md"];
+    if (sm) return sizeBasedProps["sm"];
+    if (xs) return sizeBasedProps["xs"];
+  };
 
   const renderItem = (item: PaginationRenderItemParams) => {
     const className =
@@ -58,8 +97,7 @@ const CustomPagination: FunctionComponent<CustomPaginationProps> = ({
     <div className={classes.wrapper}>
       <Pagination
         className={classes.pagination}
-        siblingCount={2}
-        boundaryCount={2}
+        {...sizeBased()}
         count={count}
         shape="round"
         renderItem={renderItem}

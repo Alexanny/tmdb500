@@ -2,7 +2,10 @@ import { makeStyles } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
 import { FunctionComponent } from "react";
-import MoviesList from "../features/movies/MoviesList";
+import { Route, Routes } from "react-router-dom";
+import Navigation from "../common/components/Navigation";
+import DiscoverMovies from "../features/movies/DiscoverMovies";
+import TopMovies from "../features/movies/TopMovies";
 import "../index.css";
 
 const useStyles = makeStyles({
@@ -10,9 +13,8 @@ const useStyles = makeStyles({
     minHeight: "100%",
   },
   title: {
-    borderRadius: "0 0 4px 4px",
     color: "black",
-    textShadow: "-1px 1px white",
+    textShadow: "1px -2px white",
   },
 });
 
@@ -26,9 +28,13 @@ const App: FunctionComponent = () => {
         component="h1"
         align="center"
       >
-        TMDB top 500 movies
+        TMDB movies
       </Typography>
-      <MoviesList />
+      <Navigation />
+      <Routes>
+        <Route path="/top500" element={<TopMovies />} />
+        <Route path="/" element={<DiscoverMovies />} />
+      </Routes>
     </Container>
   );
 };

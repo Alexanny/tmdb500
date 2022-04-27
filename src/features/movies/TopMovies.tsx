@@ -6,10 +6,11 @@ import CustomPagination from "../../common/components/CustomPagination";
 import MovieCard from "./MovieCard";
 import {
   DEFAULT_PAGE,
-  movieSelectors,
   MoviesLoadingStatus,
   requestMoviesPage,
-} from "./moviesSlice";
+  topMovieSelectors,
+} from "./slices/topMoviesSlice";
+import { MovieCategory } from "./types/MovieCategory";
 
 const useStyles = makeStyles({
   progress: {
@@ -27,27 +28,32 @@ const useStyles = makeStyles({
   root: {
     minHeight: "100%",
   },
+  gridContainer: {
+    marginTop: "4vh",
+  },
 });
 
 const MoviesList: FunctionComponent = () => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const currentPage = useAppSelector(movieSelectors.selectCurrentPageIndex);
-  const movieIds = useAppSelector(movieSelectors.selectMovieIds);
+  const currentPage = useAppSelector(topMovieSelectors.selectCurrentPageIndex);
+  const movieIds = useAppSelector(topMovieSelectors.selectMovieIds);
   const currentPageStatus = useAppSelector(
-    movieSelectors.selectCurrentPageStatus
+    topMovieSelectors.selectCurrentPageStatus
   );
-  const requestedPage = useAppSelector(movieSelectors.selectRequestedPageIndex);
+  const requestedPage = useAppSelector(
+    topMovieSelectors.selectRequestedPageIndex
+  );
   const requestedPageStatus = useAppSelector(
-    movieSelectors.selectRequestedPageStatus
+    topMovieSelectors.selectRequestedPageStatus
   );
   const requestedPageError = useAppSelector(
-    movieSelectors.selectRequestedPageError
+    topMovieSelectors.selectRequestedPageError
   );
 
   useEffect(() => {
     if (currentPageStatus === MoviesLoadingStatus.IDLE) {
-      dispatch(requestMoviesPage(currentPage));
+      dispatch(requestMoviesPage({ page: currentPage }));
     }
   }, [currentPageStatus, currentPage, dispatch]);
 
@@ -55,7 +61,11 @@ const MoviesList: FunctionComponent = () => {
     event: ChangeEvent<unknown>,
     page: number
   ) => {
-    dispatch(requestMoviesPage(page));
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+    dispatch(requestMoviesPage({ page }));
   };
 
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -89,7 +99,7 @@ const MoviesList: FunctionComponent = () => {
       count={25}
       onChange={handlePaginationChange}
       page={currentPage}
-      requestedPage={requestedPage}
+      requestedPage={currentPage}
       loading={isLoading}
       defaultPage={DEFAULT_PAGE}
     />
@@ -102,13 +112,13 @@ const MoviesList: FunctionComponent = () => {
       )}
       {currentPageStatus === MoviesLoadingStatus.SUCCEEDED && (
         <>
-          <Pagination />
-          <Grid container spacing={2}>
-            {movieIds.map((id) => (
-              <Grid key={id} item xs={12} sm={6} md={4} lg={3}>
-                <MovieCard movieId={id} />
-              </Grid>
-            ))}
+          <Grid className={classes.gridContainer} container spacing={2}>
+            {movieIds &&
+              movieIds.map((id) => (
+                <Grid key={id} item xs={12} sm={6} md={4} lg={3}>
+                  <MovieCard movieId={id} category={MovieCategory.TOP} />
+                </Grid>
+              ))}
           </Grid>
           <Pagination />
         </>

@@ -11,10 +11,16 @@ import Rating from "@material-ui/lab/Rating";
 import { EntityId } from "@reduxjs/toolkit";
 import { ChangeEvent } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { moviesActions, movieSelectors } from "./moviesSlice";
+import {
+  discoverMoviesActions,
+  discoverMovieSelectors,
+} from "./slices/discoverMoviesSlice";
+import { topMoviesActions, topMovieSelectors } from "./slices/topMoviesSlice";
+import { MovieCategory } from "./types/MovieCategory";
 
-type MovieCardProps = {
+export type MovieCardProps = {
   movieId: EntityId;
+  category: MovieCategory;
 };
 
 const useStyles = makeStyles({
@@ -87,6 +93,8 @@ const useStyles = makeStyles({
   },
   title: {
     fontSize: "2.2vh",
+    padding: "0 1vh",
+    textAlign: "center",
     color: "white",
   },
   overview: {
@@ -97,21 +105,41 @@ const useStyles = makeStyles({
   },
 });
 
-const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
+const MovieCard: React.FC<MovieCardProps> = ({ movieId, category }) => {
   const classes = useStyles();
-  const movieData = useAppSelector((state) =>
-    movieSelectors.selectMovieById(state, movieId)
-  )!;
-  const favorite = useAppSelector((state) =>
-    movieSelectors.selectMovieFavoriteFlag(state, movieId)
-  );
+  const movieData = useAppSelector((state) => {
+    switch (category) {
+      case MovieCategory.DISCOVER:
+        return discoverMovieSelectors.selectMovieById(state, movieId);
+      case MovieCategory.TOP:
+        return topMovieSelectors.selectMovieById(state, movieId);
+    }
+  })!;
+  const favorite = useAppSelector((state) => {
+    switch (category) {
+      case MovieCategory.DISCOVER:
+        return discoverMovieSelectors.selectMovieFavoriteFlag(state, movieId);
+      case MovieCategory.TOP:
+        return topMovieSelectors.selectMovieFavoriteFlag(state, movieId);
+    }
+  });
   const dispatch = useAppDispatch();
 
   const handleFavChange = (
     event: ChangeEvent<unknown>,
     newValue: number | null
   ) => {
-    dispatch(moviesActions.setFavorite({ id: movieId, flag: !!newValue }));
+    switch (category) {
+      case MovieCategory.DISCOVER:
+        dispatch(
+          discoverMoviesActions.setFavorite({ id: movieId, flag: !!newValue })
+        );
+        break;
+      case MovieCategory.TOP:
+        dispatch(
+          topMoviesActions.setFavorite({ id: movieId, flag: !!newValue })
+        );
+    }
   };
 
   const { id, image, title, overview, rating, year } = movieData;
@@ -156,7 +184,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movieId }) => {
           target="_blank"
           rel="noreferrer"
         >
-          <Typography className={classes.title} variant="caption">
+          <Typography className={classes.title} component="p" variant="caption">
             {title}
           </Typography>
         </Link>

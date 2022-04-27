@@ -7,13 +7,15 @@ import {
   EntityId,
   EntityState,
 } from "@reduxjs/toolkit";
-import { AppThunk, RootState } from "../../app/store";
-import { Movie } from "./Movie";
-import { fetchMoviesRequest } from "./moviesApi";
+import { AppThunk, RootState } from "../../../app/store";
+import { fetchMoviesRequest } from "../moviesApi";
+import { FetchMoviesOptions } from "../types/FetchMoviesOptions";
+import { Movie } from "../types/Movie";
 
-export const MOVIES_NS = "movies";
+export const TOP_MOVIES = "topMovies";
 export const DEFAULT_PAGE = 1;
 const FAVORIES_LOCAL_STORAGE_KEY = "top500_favorites";
+const TOP_MOVIES_ENDPOINT = "/movie/top_rated";
 
 export enum MoviesLoadingStatus {
   IDLE,
@@ -75,12 +77,12 @@ const initialState: MovieState = {
 };
 
 const fetchMovies = createAsyncThunk(
-  `${MOVIES_NS}/fetchMovies`,
+  `${TOP_MOVIES}/fetchMovies`,
   fetchMoviesRequest
 );
 
 const moviesSlice = createSlice({
-  name: MOVIES_NS,
+  name: TOP_MOVIES,
   initialState: initialState,
   reducers: {
     setFavorite(state, action) {
@@ -116,7 +118,7 @@ const moviesSlice = createSlice({
   },
   extraReducers: (builder: ActionReducerMapBuilder<MovieState>) => {
     builder.addCase(fetchMovies.pending, (state: MovieState, action) => {
-      const newPageIndex = action.meta.arg;
+      const newPageIndex = action.meta.arg.page;
       if (!state.pages[newPageIndex]) {
         state.pages[newPageIndex] = createPage(MoviesLoadingStatus.LOADING);
       }
@@ -125,17 +127,16 @@ const moviesSlice = createSlice({
       state.requestedPage = newPageIndex;
     });
     builder.addCase(fetchMovies.fulfilled, (state: MovieState, action) => {
-      const loadedPageIndex = action.meta.arg;
+      const loadedPageIndex = action.meta.arg.page;
       const page = state.pages[loadedPageIndex];
-
-      moviesAdapter.addMany(page.data, action.payload);
+      moviesAdapter.addMany(page.data, action.payload.movies);
       page.status = MoviesLoadingStatus.SUCCEEDED;
       if (state.requestedPage === loadedPageIndex) {
         state.currentPageIndex = loadedPageIndex;
       }
     });
     builder.addCase(fetchMovies.rejected, (state: MovieState, action) => {
-      const loadedPageIndex = action.meta.arg;
+      const loadedPageIndex = action.meta.arg.page;
       const page = state.pages[loadedPageIndex];
       page.error = action.error.message || "Request failed";
       page.status = MoviesLoadingStatus.FAILED;
@@ -143,12 +144,12 @@ const moviesSlice = createSlice({
   },
 });
 
-export const moviesReducer = moviesSlice.reducer;
+export const topMoviesReducer = moviesSlice.reducer;
 
-export const moviesActions = moviesSlice.actions;
+export const topMoviesActions = moviesSlice.actions;
 
 export const requestMoviesPage =
-  (page: number): AppThunk =>
+  ({ page, endpoint }: FetchMoviesOptions): AppThunk =>
   (dispatch, getState) => {
     const state = selectMoviesSubState(getState());
     const nextPage = state.pages[page];
@@ -162,7 +163,7 @@ export const requestMoviesPage =
     }
 
     if (nextPage && nextPage.status === MoviesLoadingStatus.SUCCEEDED) {
-      dispatch(moviesActions.setCurrentPage(page));
+      dispatch(topMoviesActions.setCurrentPage(page));
       return;
     }
 
@@ -172,14 +173,14 @@ export const requestMoviesPage =
         nextPage.status
       )
     ) {
-      dispatch(fetchMovies(page));
+      dispatch(fetchMovies({ page, endpoint: TOP_MOVIES_ENDPOINT }));
       return;
     }
 
     // Here we just wait for loading
   };
 
-const selectMoviesSubState = (rootState: RootState) => rootState[MOVIES_NS];
+const selectMoviesSubState = (rootState: RootState) => rootState[TOP_MOVIES];
 const selectFavorites = createSelector(
   [selectMoviesSubState],
   (state: MovieState) => state.favorites
@@ -230,7 +231,7 @@ const selectMovieFavoriteFlag = createSelector(
   (favorites: EntityId[], id: EntityId) => favorites.includes(id)
 );
 
-export const movieSelectors = {
+export const topMovieSelectors = {
   selectCurrentPageIndex,
   selectCurrentPageStatus,
   selectMovieById,
